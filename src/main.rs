@@ -1,5 +1,8 @@
 use nostr_sdk::prelude::*;
 use std::str::FromStr;
+use std::time::Duration;
+use tokio::time::sleep;
+use nostr_sdk::prelude::Map;
 
 const PRIVATE_KEY: &str = "dab63d8ad6442c28192788a4febe00cea85c1c6a2da84e53745b1c15e0861735";
 
@@ -19,6 +22,29 @@ async fn main() -> Result<()> {
 
     let event = client.publish_text_note(msg, &[]).await?;
     println!("{:#?}", event);
+
+    sleep(Duration::from_secs(1)).await;
+
+    //let filter = Filter::new().id(event);
+    let filter = Filter {
+        ids: None,
+        authors: Some(vec![my_keys.public_key().to_string()]),
+        kinds: None,
+        events: None,
+        pubkeys: None,
+        hashtags: None,
+        references: None,
+        search: None,
+        since: None,
+        until: None,
+        limit: None,
+        custom: Map::new(),
+        identifiers: None
+    };
+
+    let events = client.get_events_of(vec![filter], None).await?;
+    println!("{:#?}", events);
+
 //0x45d4e46778859bed32a89b46697f248996e7c8e68c09de013e01b3ade9f0be7c
     Ok(())
 }
